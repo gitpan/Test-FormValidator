@@ -1,7 +1,7 @@
 
 use strict;
 
-use Test::Builder::Tester 'tests' => 20;
+use Test::Builder::Tester 'tests' => 22;
 use Test::More;
 use Data::FormValidator::Constraints qw(:closures);
 use Test::FormValidator;
@@ -135,6 +135,16 @@ $tfv->invalid_ok({
 }, "invalid fields");
 test_test(name => "invalid_ok (hash) - caught failed test of invalid input", skip_err => 1);
 
+
+# Test Invalid (hash) with bad email address and too short password, but missing the password constraint (pass1 => 0)
+test_out("not ok 1 - invalid fields");
+$tfv->invalid_ok({
+    email => 'email',
+    pass1 => 0,
+}, "invalid fields");
+test_test(name => "invalid_ok (hash) - caught failed test of invalid input (pass1 => 0)", skip_err => 1);
+
+
 # Test Invalid (hash) with bad email address and too short password, and non-alpha-num password,
 # but missing the non-alpha-num password constraint
 $tfv->check(
@@ -185,6 +195,27 @@ $tfv->invalid_ok({
 test_test(name => "invalid_ok (hash) - caught passing test of invalid input (added pass2 mismatch, changed order of pass1 constraints)", skip_err => 1);
 
 
+# Test Invalid (hash) with bad email address and too short password, and non-alpha-num password,
+# and catching all constraints properly
+# But extra fields in constraints
+#
+$tfv->check(
+    name  => 'test',
+    email => 'test-at-example.com',
+    pass1 => 'foo',
+    pass2 => 'bar',
+);
+test_out("not ok 1 - invalid fields");
+$tfv->invalid_ok({
+    email => ['email'],
+    pass1  => ['need_alpha_num', 'too_short'],
+    pass2  => 'mismatch',
+    pass3  => 'xxx',
+}, "invalid fields");
+test_test(name => "invalid_ok (hash) - too many fields in %fields_and_constraints spec", skip_err => 1);
+
+
+
 # Test Valid with none invalid
 $tfv->check(
     name  => 'test',
@@ -218,7 +249,6 @@ $tfv->check(
 test_out("not ok 1 - some valid fields");
 $tfv->valid_ok([qw(name)], "some valid fields");
 test_test(name => "valid_ok - caught failed test - did not test for all valid fields", skip_err => 1);
-
 
 
 

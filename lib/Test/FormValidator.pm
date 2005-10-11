@@ -25,11 +25,11 @@ Test::FormValidator - Test framework for Data::FormValidator profiles
 
 =head1 VERSION
 
-Version 0.03
+Version 0.04
 
 =cut
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 =head1 SYNOPSIS
 
@@ -489,27 +489,26 @@ sub invalid_ok {
     if (ref $expected eq 'HASH') {
         my $invalid  = $results->invalid;
 
-        $success = 1;
-        foreach my $field (keys %$invalid) {
+        if (scalar (keys %$expected) == scalar (keys %$invalid)) {
 
-            if (!$expected->{$field}) {
-                undef $success;
-                last;
-            }
+            $success = 1;
 
-            my $constraints          = $invalid->{$field};
-            my $expected_constraints = $expected->{$field};
+            foreach my $field (keys %$invalid) {
 
-            $constraints          = [$constraints]          unless ref $constraints eq 'ARRAY';
-            $expected_constraints = [$expected_constraints] unless ref $expected_constraints eq 'ARRAY';
+                my $constraints          = $invalid->{$field};
+                my $expected_constraints = $expected->{$field};
 
-            # order of constraints doesn't matter
-            $constraints          = [sort @$constraints];
-            $expected_constraints = [sort @$expected_constraints];
+                $constraints          = [$constraints]          unless ref $constraints eq 'ARRAY';
+                $expected_constraints = [$expected_constraints] unless ref $expected_constraints eq 'ARRAY';
 
-            unless (Test::More::eq_array($constraints, $expected_constraints)) {
-                undef $success;
-                last;
+                # order of constraints doesn't matter
+                $constraints          = [sort @$constraints];
+                $expected_constraints = [sort @$expected_constraints];
+
+                unless (Test::More::eq_array($constraints, $expected_constraints)) {
+                    undef $success;
+                    last;
+                }
             }
         }
 
