@@ -1,5 +1,9 @@
 Revision history for Test-FormValidator
 
+0.02    October 11, 2005
+        - minor pod fixes
+        - t/testform.html was missing from distribution
+
 0.01    October 10, 2005
-        First version, released on an unsuspecting world.
+        - First version, released on an unsuspecting world.
 

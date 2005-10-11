@@ -25,11 +25,11 @@ Test::FormValidator - Test framework for Data::FormValidator profiles
 
 =head1 VERSION
 
-Version 0.01
+Version 0.02
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 SYNOPSIS
 
@@ -37,25 +37,24 @@ our $VERSION = '0.01';
 
     my $tfv = Test::FormValidator->new;
 
-    $tfv->profile(Webapp->_change_password_profile);
+    $tfv->profile(WebApp->_change_password_profile);
 
-    # catch missing retyped password
+    # check that the profile detects missing retyped password
     $tfv->check(
         'email'     => 'someone-at-example.com',
         'old_pass'  => 'seekrit',
         'new_pass1' => 'foo',
     );
-    $tfv->missing_ok(['pass2'], "caught missing retyped password");
+    $tfv->missing_ok(['new_pass2'], "caught missing retyped password");
 
-
-    # catch invalid email and also passwords not matching
+    # and that it detects missing fields
     $tfv_check(
         'email'     => 'someone-at-example.com',
         'old_pass'  => 'seekrit',
         'new_pass1' => 'foo',
         'new_pass2' => 'bar',
     );
-    $tfv->invalid_ok([qw(email pass1 pass2)], "caught bad email & passwd");
+    $tfv->invalid_ok([qw(email new_pass1 new_pass2)], "caught bad email & passwd");
 
 
 =head1 DESCRIPTION
@@ -212,7 +211,7 @@ fields that are actually present in the HTML form:
 
 =head1 METHODS
 
-=head1 Seting up the Validator
+=head2 Seting up the Validator
 
 =over 4
 
@@ -275,7 +274,7 @@ sub profile {
     return $self->{'__CURRENT_PROFILE'};
 }
 
-=head1 Checking the input
+=head2 Checking the input
 
 =over 4
 

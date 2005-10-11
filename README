@@ -2,31 +2,31 @@ NAME
     Test::FormValidator - Test framework for Data::FormValidator profiles
 
 VERSION
-    Version 0.01
+    Version 0.02
 
 SYNOPSIS
         use Test::FormValidator 'no_plan';
 
         my $tfv = Test::FormValidator->new;
 
-        $tfv->profile(Webapp->_change_password_profile);
+        $tfv->profile(WebApp->_change_password_profile);
 
-        # catch missing retyped password
+        # check that the profile detects missing retyped password
         $tfv->check(
             'email'     => 'someone-at-example.com',
             'old_pass'  => 'seekrit',
             'new_pass1' => 'foo',
         );
-        $tfv->missing_ok(['pass2'], "caught missing retyped password");
+        $tfv->missing_ok(['new_pass2'], "caught missing retyped password");
 
-        # catch invalid email and also passwords not matching
+        # and that it detects missing fields
         $tfv_check(
             'email'     => 'someone-at-example.com',
             'old_pass'  => 'seekrit',
             'new_pass1' => 'foo',
             'new_pass2' => 'bar',
         );
-        $tfv->invalid_ok([qw(email pass1 pass2)], "caught bad email & passwd");
+        $tfv->invalid_ok([qw(email new_pass1 new_pass2)], "caught bad email & passwd");
 
 DESCRIPTION
     This is a module for testing your "Data::FormValidator" profiles. It
@@ -176,7 +176,7 @@ EXAMPLE
         'caught invalid fields');
 
 METHODS
-Seting up the Validator
+  Seting up the Validator
     new You set up "Test::FormValidator" by calling "new". You can pass any
         arguments to new that you can pass to "Data::FormValidator".
 
@@ -205,7 +205,7 @@ Seting up the Validator
 
         You can also explicitly pass a profile to check.
 
-Checking the input
+  Checking the input
     check(%input)
         This runs %input through the current profile, and returns a
         "Data::FormValidator" results object.
