@@ -2,7 +2,7 @@ NAME
     Test::FormValidator - Test framework for Data::FormValidator profiles
 
 VERSION
-    Version 0.02
+    Version 0.03
 
 SYNOPSIS
         use Test::FormValidator 'no_plan';
@@ -205,6 +205,48 @@ METHODS
 
         You can also explicitly pass a profile to check.
 
+    prefix('some text')
+        This is a convenience function to set some text to be printed at the
+        start of every test description.
+
+        It's useful to save typing:
+
+            $tfv->profile(WebApp->_login_profile);
+            $tfv->prefix('[login form] ');
+
+            $tfv->check({
+                'email'    => 'test-at-example.com',
+            });
+
+            $tfv->missing_ok(['password'], 'password missing');
+            $tfv->invalid_ok(['email'], 'email invalid');
+
+        This prints out:
+
+            ok 1 - [login form] password missing
+            ok 2 - [login form] email invalid
+
+        You can switch prefixes in the same script; just call "prefix" with
+        a new value:
+
+            $tfv->profile(Webapp->_first_profile);
+            $tfv->prefix('FIRST: ');
+
+            # ... run some tests ...
+
+            $tfv->profile(Webapp->_second_profile);
+            $tfv->prefix('SECOND: ');
+
+            # ... run some other tests ...
+
+        To remove the prefix either pass a value of "undef":
+
+            $tfv->prefix(undef);
+
+        or the empty string (''):
+
+            $tfv->prefix('');
+
   Checking the input
     check(%input)
         This runs %input through the current profile, and returns a
@@ -219,7 +261,7 @@ METHODS
     print out 'ok' and return a true value. On failure, they print out 'not
     ok' and return false.
 
-    missing_ok(\@fields, 'comment')
+    missing_ok(\@fields, 'description')
         Checks "\%input" against the current profile, and verifies that
         @fields are all flagged as missing, and that no other fields are
         flagged as mising.
@@ -231,7 +273,7 @@ METHODS
             );
             $tfv->missing_ok(['password'], "caught missing password");
 
-    invalid_ok(\@fields, 'comment');
+    invalid_ok(\@fields, 'description');
         Checks "\%input" against the current profile, and verifies that
         @fields are all flagged as invalid, and that no other fields are
         flagged as invalid.
@@ -241,7 +283,7 @@ METHODS
             );
             $tfv->invalid_ok(['email'], "caught invalid email address");
 
-    invalid_ok(\%fields_and_constraints, 'comment');
+    invalid_ok(\%fields_and_constraints, 'description');
         Runs the current profile against "\%input", and verifies that
         specific fields were invalid. It also verifies that specific
         constraints failed:
@@ -262,7 +304,7 @@ METHODS
         @fields are all flagged as invalid, and that no other fields are
         flagged as invalid.
 
-    valid_ok(\@fields, 'comment');
+    valid_ok(\@fields, 'description');
         Checks "\%input" against the current profile, and verifies that
         @fields are all flagged as valid, and that no other fields are
         flagged as valid.
@@ -272,9 +314,9 @@ METHODS
             );
             $tfv->valid_ok(['email'], "only email is valid");
 
-    html_ok($file, 'comment');
-    html_ok($file, { ignore => [qw(foo bar)] }, 'comment');
-    html_ok($file, { ignore => /^foo/ }, 'comment');
+    html_ok($file, 'description');
+    html_ok($file, { ignore => [qw(foo bar)] }, 'description');
+    html_ok($file, { ignore => /^foo/ }, 'description');
         This checks that the form fields in the given file match the fields
         listed in the current profile (including both "optional" and
         "required" fields).

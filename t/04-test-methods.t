@@ -1,7 +1,7 @@
 
 use strict;
 
-use Test::Builder::Tester 'tests' => 15;
+use Test::Builder::Tester 'tests' => 20;
 use Test::More;
 use Data::FormValidator::Constraints qw(:closures);
 use Test::FormValidator;
@@ -218,4 +218,72 @@ $tfv->check(
 test_out("not ok 1 - some valid fields");
 $tfv->valid_ok([qw(name)], "some valid fields");
 test_test(name => "valid_ok - caught failed test - did not test for all valid fields", skip_err => 1);
+
+
+
+
+# Test prefix
+$tfv->prefix('****XXXX****');
+$tfv->check(
+    name  => 'test',
+    email => 'test@example.com',
+    pass1 => 'seekrit123',
+    pass2 => 'seekrit123',
+);
+
+test_out("ok 1 - ****XXXX****prefix missing test1");
+test_out("ok 2 - ****XXXX****prefix ignore test1");
+test_out("not ok 3 - ****XXXX****prefix valid test1");
+test_out("ok 4 - ****XXXX****prefix html test1");
+$tfv->missing_ok([], "prefix missing test1");
+$tfv->invalid_ok([], "prefix ignore test1");
+$tfv->valid_ok([], "prefix valid test1");
+$tfv->html_ok('t/testform.html', { ignore => qr/./ }, "prefix html test1");
+test_test(name => "prefix - prefix prepended 1", skip_err => 1);
+
+$tfv->prefix('****YYYY****');
+test_out("ok 1 - ****YYYY****prefix missing test2");
+test_out("ok 2 - ****YYYY****prefix ignore test2");
+test_out("not ok 3 - ****YYYY****prefix valid test2");
+test_out("ok 4 - ****YYYY****prefix html test2");
+$tfv->missing_ok([], "prefix missing test2");
+$tfv->invalid_ok([], "prefix ignore test2");
+$tfv->valid_ok([], "prefix valid test2");
+$tfv->html_ok('t/testform.html', { ignore => qr/./ }, "prefix html test2");
+test_test(name => "prefix - prefix prepended 2", skip_err => 1);
+
+$tfv->prefix(undef);
+test_out("ok 1 - prefix missing test3");
+test_out("ok 2 - prefix ignore test3");
+test_out("not ok 3 - prefix valid test3");
+test_out("ok 4 - prefix html test3");
+$tfv->missing_ok([], "prefix missing test3");
+test_fail(+1);
+$tfv->invalid_ok([], "prefix ignore test3");
+$tfv->valid_ok([], "prefix valid test3");
+$tfv->html_ok('t/testform.html', { ignore => qr/./ }, "prefix html test3");
+test_test(name => "prefix - prefix removed", skip_err => 1);
+
+$tfv->prefix('****ZZZZ****');
+test_out("ok 1 - ****ZZZZ****prefix missing test4");
+test_out("ok 2 - ****ZZZZ****prefix ignore test4");
+test_out("not ok 3 - ****ZZZZ****prefix valid test4");
+test_out("ok 4 - ****ZZZZ****prefix html test4");
+$tfv->missing_ok([], "prefix missing test4");
+$tfv->invalid_ok([], "prefix ignore test4");
+$tfv->valid_ok([], "prefix valid test4");
+$tfv->html_ok('t/testform.html', { ignore => qr/./ }, "prefix html test4");
+test_test(name => "prefix - prefix prepended 2", skip_err => 1);
+
+$tfv->prefix('');
+test_out("ok 1 - prefix missing test5");
+test_out("ok 2 - prefix ignore test5");
+test_out("not ok 3 - prefix valid test5");
+test_out("ok 4 - prefix html test5");
+$tfv->missing_ok([], "prefix missing test5");
+test_fail(+1);
+$tfv->invalid_ok([], "prefix ignore test5");
+$tfv->valid_ok([], "prefix valid test5");
+$tfv->html_ok('t/testform.html', { ignore => qr/./ }, "prefix html test5");
+test_test(name => "prefix - prefix removed via empty string", skip_err => 1);
 

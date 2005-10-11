@@ -56,3 +56,27 @@ my $tfv_trim = Test::FormValidator->new({}, {
 $results = $tfv_trim->check(\%input, \%profile);
 is($results->valid->{'foo'}, 'test', "tfv_trim (value has whitespace removed)");
 
+
+
+# Test prefix
+
+ok(!$tfv->prefix, "no prefix set");
+is($tfv->_format_description('desc'), "desc", "prefix not added to description");
+
+$tfv->prefix('something');
+
+is($tfv->prefix('something'), 'something', "prefix set to something");
+is($tfv->_format_description('desc'), "somethingdesc", "prefix added to description");
+
+$tfv->prefix(undef);
+
+ok(!$tfv->prefix, "prefix unset");
+is($tfv->_format_description('desc'), "desc", "prefix no longer added to description");
+
+
+$tfv->prefix(0);
+
+ok(defined $tfv->prefix, "prefix set to zero");
+is($tfv->_format_description('desc'), "0desc", "false but substantial prefix (zero) added to description");
+
+

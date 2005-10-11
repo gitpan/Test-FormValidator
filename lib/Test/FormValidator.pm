@@ -25,11 +25,11 @@ Test::FormValidator - Test framework for Data::FormValidator profiles
 
 =head1 VERSION
 
-Version 0.02
+Version 0.03
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 =head1 SYNOPSIS
 
@@ -264,8 +264,6 @@ You can switch profiles in the same script:
 
 You can also explicitly pass a profile to L<check>.
 
-=back
-
 =cut
 
 sub profile {
@@ -273,6 +271,72 @@ sub profile {
     $self->{'__CURRENT_PROFILE'} = shift if @_;
     return $self->{'__CURRENT_PROFILE'};
 }
+
+=item prefix('some text')
+
+This is a convenience function to set some text to be printed at the
+start of every test description.
+
+It's useful to save typing:
+
+    $tfv->profile(WebApp->_login_profile);
+    $tfv->prefix('[login form] ');
+
+    $tfv->check({
+        'email'    => 'test-at-example.com',
+    });
+
+    $tfv->missing_ok(['password'], 'password missing');
+    $tfv->invalid_ok(['email'], 'email invalid');
+
+This prints out:
+
+    ok 1 - [login form] password missing
+    ok 2 - [login form] email invalid
+
+You can switch prefixes in the same script; just call C<prefix> with a
+new value:
+
+    $tfv->profile(Webapp->_first_profile);
+    $tfv->prefix('FIRST: ');
+
+    # ... run some tests ...
+
+    $tfv->profile(Webapp->_second_profile);
+    $tfv->prefix('SECOND: ');
+
+    # ... run some other tests ...
+
+To remove the prefix either pass a value of C<undef>:
+
+    $tfv->prefix(undef);
+
+or the empty string (C<''>):
+
+    $tfv->prefix('');
+
+
+=back
+
+=cut
+
+sub prefix {
+    my $self = shift;
+    $self->{'__CURRENT_PREFIX'} = shift if @_;
+    return $self->{'__CURRENT_PREFIX'};
+}
+
+sub _format_description {
+    my $self        = shift;
+    my $description = shift;
+
+    my $prefix = $self->prefix;
+    if (defined $prefix and $prefix ne '') {
+        $description = $prefix . $description;
+    }
+    return $description;
+}
+
 
 =head2 Checking the input
 
@@ -306,7 +370,7 @@ sub check {
         $input = { @_ };
     }
 
-    my $dfv     = $self->{'__DFV'} or croak "Test::FormValidator not setup properly";
+    my $dfv     = $self->{'__DFV'};
     $profile  ||= $self->profile   or croak "Test::FormValidator you need to set a profile before calling check";
 
     my $results = $dfv->check($input, $profile);
@@ -323,7 +387,7 @@ out C<'not ok'> and return false.
 
 =over 4
 
-=item missing_ok(\@fields, 'comment')
+=item missing_ok(\@fields, 'description')
 
 Checks C<\%input> against the current profile, and verifies that
 C<@fields> are all flagged as missing, and that no other fields are
@@ -339,12 +403,12 @@ For example:
 =cut
 
 sub missing_ok {
-    my $self    = shift;
-    my $fields  = shift;
-    my $comment = shift;
+    my $self        = shift;
+    my $fields      = shift;
+    my $description = shift;
 
     if (!$fields or ref $fields ne 'ARRAY') {
-        croak "Test::FV: usage \$tfv->missing_ok(\\\@fields, 'comment')";
+        croak "Test::FV: usage \$tfv->missing_ok(\\\@fields, 'description')";
     }
 
     my $results = $self->{'__DFV_RESULTS'};
@@ -360,10 +424,10 @@ sub missing_ok {
         $self->diag;
     }
 
-    return $Test->ok($success, $comment);
+    return $Test->ok($success, $self->_format_description($description));
 }
 
-=item invalid_ok(\@fields, 'comment');
+=item invalid_ok(\@fields, 'description');
 
 Checks C<\%input> against the current profile, and verifies that
 C<@fields> are all flagged as invalid, and that no other fields are
@@ -375,7 +439,7 @@ flagged as invalid.
     $tfv->invalid_ok(['email'], "caught invalid email address");
 
 
-=item invalid_ok(\%fields_and_constraints, 'comment');
+=item invalid_ok(\%fields_and_constraints, 'description');
 
 Runs the current profile against C<\%input>, and verifies that specific
 fields were invalid.  It also verifies that specific constraints failed:
@@ -399,12 +463,12 @@ flagged as invalid.
 =cut
 
 sub invalid_ok {
-    my $self     = shift;
-    my $expected = shift;
-    my $comment  = shift;
+    my $self        = shift;
+    my $expected    = shift;
+    my $description = shift;
 
     if (!$expected or (ref $expected ne 'ARRAY' and ref $expected ne 'HASH')) {
-        croak "Test::FV: usage \$tfv->missing_ok(\\\@expected, 'comment') or \$tfv->missing_ok(\\%constraints, 'comment') or ";
+        croak "Test::FV: usage \$tfv->missing_ok(\\\@expected, 'description') or \$tfv->missing_ok(\\%constraints, 'description') or ";
     }
 
     my $results = $self->{'__DFV_RESULTS'};
@@ -454,11 +518,11 @@ sub invalid_ok {
         $self->diag;
     }
 
-    return $Test->ok($success, $comment);
+    return $Test->ok($success, $self->_format_description($description));
 
 }
 
-=item valid_ok(\@fields, 'comment');
+=item valid_ok(\@fields, 'description');
 
 Checks C<\%input> against the current profile, and verifies that
 C<@fields> are all flagged as valid, and that no other fields are
@@ -472,12 +536,12 @@ flagged as valid.
 =cut
 
 sub valid_ok {
-    my $self    = shift;
-    my $fields  = shift;
-    my $comment = shift;
+    my $self        = shift;
+    my $fields      = shift;
+    my $description = shift;
 
     if (!$fields or ref $fields ne 'ARRAY') {
-        croak "Test::FV: usage \$tfv->missing_ok(\\\@fields, 'comment')";
+        croak "Test::FV: usage \$tfv->missing_ok(\\\@fields, 'description')";
     }
 
     my $results = $self->{'__DFV_RESULTS'};
@@ -493,15 +557,15 @@ sub valid_ok {
         $self->diag;
     }
 
-    return $Test->ok($success, $comment);
+    return $Test->ok($success, $self->_format_description($description));
 
 }
 
-=item html_ok($file, 'comment');
+=item html_ok($file, 'description');
 
-=item html_ok($file, { ignore => [qw(foo bar)] }, 'comment');
+=item html_ok($file, { ignore => [qw(foo bar)] }, 'description');
 
-=item html_ok($file, { ignore => /^foo/ }, 'comment');
+=item html_ok($file, { ignore => /^foo/ }, 'description');
 
 This checks that the form fields in the given file match the fields
 listed in the current profile (including both C<optional> and
@@ -582,9 +646,9 @@ fields to ignore or a regex to match all fields against.
 =cut
 
 sub html_ok {
-    my $self     = shift;
-    my $filename = shift;
-    my $comment  = pop;
+    my $self        = shift;
+    my $filename    = shift;
+    my $description = pop;
 
     my %ignore_list;
     my $ignore_match;
@@ -604,7 +668,7 @@ sub html_ok {
     }
 
     if (!$filename) {
-        croak "Test::FV: usage \$tfv->html_ok('/path/to/template.html', 'comment')";
+        croak "Test::FV: usage \$tfv->html_ok('/path/to/template.html', 'description')";
     }
 
     my $profile = $self->profile or croak "Test::FV: must set profile before calling html_ok";
@@ -633,7 +697,7 @@ sub html_ok {
         $Test->diag("HTML fields:    ".    (join ", ", @html_fields));
     }
 
-    return $Test->ok($success, $comment);
+    return $Test->ok($success, $self->_format_description($description));
 }
 
 sub _extract_form_fields_from_html {

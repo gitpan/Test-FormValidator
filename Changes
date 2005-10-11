@@ -1,5 +1,11 @@
 Revision history for Test-FormValidator
 
+0.03    October 11, 2005
+        - added 'prefix()'
+        - changed 'comment' to 'description' throughout (Test::Simple
+          calls it 'name', but the TAP doc calls it 'description'.
+          Either way, 'comment' is wrong)
+
 0.02    October 11, 2005
         - minor pod fixes
         - t/testform.html was missing from distribution
