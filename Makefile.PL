@@ -7,13 +7,14 @@ WriteMakefile
           'NAME' => 'Test::FormValidator',
           'VERSION_FROM' => 'lib/Test/FormValidator.pm',
           'PREREQ_PM' => {
-                           'Test::More' => 0,
-                           'Test::Builder' => 0,
                            'HTML::TokeParser::Simple' => '1.1',
                            'Data::Dumper' => '2.03',
                            'Test::Simple' => '0.62',
                            'Test::Builder::Tester' => 0,
-                           'Data::FormValidator' => 0
+                           'Data::FormValidator' => 0,
+                           'CGI' => 0,
+                           'Test::More' => 0,
+                           'Test::Builder' => 0
                          }
         )
 ;

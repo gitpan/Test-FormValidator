@@ -1,10 +1,11 @@
 
 use strict;
 
-use Test::Builder::Tester 'tests' => 22;
+use Test::Builder::Tester 'tests' => 30;
 use Test::More;
 use Data::FormValidator::Constraints qw(:closures);
 use Test::FormValidator;
+require CGI;
 
 my $tfv = Test::FormValidator->new;
 
@@ -250,6 +251,86 @@ test_out("not ok 1 - some valid fields");
 $tfv->valid_ok([qw(name)], "some valid fields");
 test_test(name => "valid_ok - caught failed test - did not test for all valid fields", skip_err => 1);
 
+
+
+
+# Test check_ok with valid input
+test_out("ok 1 - check_ok pass");
+my $results = $tfv->check_ok({
+    name  => 'test',
+    email => 'test@example.com',
+    pass1 => 'seekrit123',
+    pass2 => 'seekrit123',
+}, 'check_ok pass');
+test_test(name => "check_ok - with valid input", skip_err => 1);
+
+isa_ok($results, 'Data::FormValidator::Results', 'Results object returned from check_ok');
+
+# Test check_ok with invalid input
+test_out("not ok 1 - check_ok pass");
+$tfv->check_ok({
+    name  => 'test',
+    email => 'test@example.com',
+    pass1 => 'seekrit',
+    pass2 => 'seekrit123',
+}, 'check_ok pass');
+test_test(name => "check_ok - with invalid input", skip_err => 1);
+
+# Test check_not_ok with valid input
+test_out("not ok 1 - check_not_ok pass");
+$tfv->check_not_ok({
+    name  => 'test',
+    email => 'test@example.com',
+    pass1 => 'seekrit123',
+    pass2 => 'seekrit123',
+}, 'check_not_ok pass');
+test_test(name => "check_not_ok - with valid input", skip_err => 1);
+
+# Test check_not_ok with invalid input
+test_out("ok 1 - check_not_ok pass");
+$tfv->check_not_ok({
+    name  => 'test',
+    email => 'test@example.com',
+    pass1 => 'seekrit',
+    pass2 => 'seekrit123',
+}, 'check_not_ok pass');
+test_test(name => "check_not_ok - with invalid input", skip_err => 1);
+
+
+# Test from CGI (check)
+my $query = CGI->new({
+    name  => 'test',
+    email => 'test-at-example.com',
+    pass1 => 'foo',
+    pass2 => 'foo',
+});
+$tfv->check($query);
+test_out("ok 1 - check cgi query");
+$tfv->valid_ok([qw(name pass2)], "check cgi query");
+test_test(name => "check using cgi query object", skip_err => 1);
+
+
+# Test from CGI (check_ok)
+$query = CGI->new({
+    name  => 'test',
+    email => 'test@example.com',
+    pass1 => 'seekrit123',
+    pass2 => 'seekrit123',
+});
+test_out("ok 1 - query ok");
+$tfv->check_ok($query, 'query ok');
+test_test(name => "check_ok using cgi query object", skip_err => 1);
+
+# Test from CGI (check_not_ok)
+$query = CGI->new({
+    name  => 'test',
+    email => 'test-at-example.com',
+    pass1 => 'foo',
+    pass2 => 'foobah',
+});
+test_out("ok 1 - query nice and bad");
+$tfv->check_not_ok($query, 'query nice and bad');
+test_test(name => "check_not_ok using cgi query object", skip_err => 1);
 
 
 # Test prefix

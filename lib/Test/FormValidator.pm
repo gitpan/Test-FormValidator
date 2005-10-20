@@ -25,11 +25,11 @@ Test::FormValidator - Test framework for Data::FormValidator profiles
 
 =head1 VERSION
 
-Version 0.04
+Version 0.05
 
 =cut
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 =head1 SYNOPSIS
 
@@ -360,7 +360,7 @@ sub check {
 
     my $input;
     my $profile;
-    if (ref $_[0] eq 'HASH') {
+    if (ref $_[0]) {
         $input = shift;
         if (@_) {
             $profile = shift;
@@ -386,6 +386,71 @@ they print out C<'ok'> and return a true value.  On failure, they print
 out C<'not ok'> and return false.
 
 =over 4
+
+=item check_ok(%input, 'description')
+
+Checks that the given input is valid:
+
+    $tfv->check_ok(\%input, 'some comment');
+
+This is the equivalent of:
+
+    ok($tfv->check(\%input), 'some comment') or $tfv->diag;
+
+On success, it returns a C<Data::FormValidator> results object.
+
+=cut
+
+sub check_ok {
+    my $self        = shift;
+    my $input       = shift;
+    my $description = shift;
+
+    if (!$input or !(ref $input)) {
+        croak "Test::FV: usage \$tfv->check_ok(\\%input, 'description')";
+    }
+
+    my $results = $self->check($input);
+
+    if (!$results) {
+        $self->diag;
+    }
+
+    $Test->ok($results, $self->_format_description($description));
+
+    return $results if $results;
+    return;
+}
+
+=item check_not_ok(%input)
+
+Checks that the given input is not valid:
+
+    $tfv->check_not_ok(\%input, 'some comment');
+
+This is the equivalent of:
+
+    ok(!$tfv->check(\%input), 'some comment') or $tfv->diag;
+
+=cut
+
+sub check_not_ok {
+    my $self        = shift;
+    my $input       = shift;
+    my $description = shift;
+
+    if (!$input or !(ref $input)) {
+        croak "Test::FV: usage \$tfv->check_not_ok(\\%input, 'description')";
+    }
+
+    my $results = $self->check($input);
+
+    if ($results) {
+        $self->diag;
+    }
+
+    return $Test->ok(!$results, $self->_format_description($description));
+}
 
 =item missing_ok(\@fields, 'description')
 

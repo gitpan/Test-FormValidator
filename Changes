@@ -1,5 +1,9 @@
 Revision history for Test-FormValidator
 
+0.05    October 20, 2005
+        - fix so that $tfv->check() works with a CGI query object
+        - added check_ok() and check_not_ok() (suggested by Mark Stosberg)
+
 0.04    October 11, 2005
         - fixed bug with invalid_ok where the presense of extra fields
           in %fields_and_constraints spec wasn't considered a test

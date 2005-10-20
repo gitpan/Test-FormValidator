@@ -34,6 +34,27 @@ ok($@, "prevented from calling html_ok before profile");
 # test that various _ok functions validate their input
 
 $tfv->check({}, {});
+
+eval {
+    $tfv->check_ok();
+};
+ok($@, "prevented from calling check_ok without input");
+eval {
+    $tfv->check_ok('description');
+};
+ok($@, "prevented from calling check_ok without input hashref");
+
+eval {
+    $tfv->check_not_ok();
+};
+ok($@, "prevented from calling check_not_ok without input");
+
+eval {
+    $tfv->check_not_ok('description');
+};
+ok($@, "prevented from calling check_not_ok without input hashref");
+
+
 eval {
     $tfv->missing_ok();
 };

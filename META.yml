@@ -1,11 +1,12 @@
 ---
 name: Test-FormValidator
-version: 0.04
+version: 0.05
 author:
   - Michael Graham <mag-perl@occamstoothbrush.com>
 abstract: Test framework for Data::FormValidator profiles
 license: perl
 requires:
+  CGI: 0
   Data::Dumper: 2.03
   Data::FormValidator: 0
   HTML::TokeParser::Simple: 1.1
@@ -16,5 +17,5 @@ requires:
 provides:
   Test::FormValidator:
     file: lib/Test/FormValidator.pm
-    version: 0.04
+    version: 0.05
 generated_by: Module::Build version 0.2611
