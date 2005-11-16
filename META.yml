@@ -1,6 +1,6 @@
 ---
 name: Test-FormValidator
-version: 0.05
+version: 0.06
 author:
   - Michael Graham <mag-perl@occamstoothbrush.com>
 abstract: Test framework for Data::FormValidator profiles
@@ -17,5 +17,5 @@ requires:
 provides:
   Test::FormValidator:
     file: lib/Test/FormValidator.pm
-    version: 0.05
+    version: 0.06
 generated_by: Module::Build version 0.2611

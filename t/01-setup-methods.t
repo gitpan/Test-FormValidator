@@ -7,6 +7,14 @@ use Test::FormValidator;
 
 my $tfv = Test::FormValidator->new;
 
+# test results - we shouldn't be able to call it without calling check first
+
+eval {
+   $tfv->results;
+};
+like($@, qr/need.*before/, "prevented from calling results before a check");
+
+
 # test check() - we shouldn't be able to call it without a profile
 
 eval {
@@ -54,7 +62,14 @@ my $tfv_trim = Test::FormValidator->new({}, {
 });
 
 $results = $tfv_trim->check(\%input, \%profile);
+isa_ok($results, 'Data::FormValidator::Results', 'Results object returned from check');
 is($results->valid->{'foo'}, 'test', "tfv_trim (value has whitespace removed)");
+
+
+# test results
+isa_ok($tfv_trim->results, 'Data::FormValidator::Results', 'tfv->results object is valid after check');
+
+is($tfv_trim->results->valid->{'foo'}, 'test', "tfv_trim (value has whitespace removed)");
 
 
 

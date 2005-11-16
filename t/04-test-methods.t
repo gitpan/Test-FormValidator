@@ -1,7 +1,7 @@
 
 use strict;
 
-use Test::Builder::Tester 'tests' => 30;
+use Test::Builder::Tester 'tests' => 32;
 use Test::More;
 use Data::FormValidator::Constraints qw(:closures);
 use Test::FormValidator;
@@ -264,17 +264,19 @@ my $results = $tfv->check_ok({
 }, 'check_ok pass');
 test_test(name => "check_ok - with valid input", skip_err => 1);
 
-isa_ok($results, 'Data::FormValidator::Results', 'Results object returned from check_ok');
+isa_ok($results, 'Data::FormValidator::Results', 'Results object returned from check_ok (valid input)');
 
 # Test check_ok with invalid input
 test_out("not ok 1 - check_ok pass");
-$tfv->check_ok({
+$results = $tfv->check_ok({
     name  => 'test',
     email => 'test@example.com',
     pass1 => 'seekrit',
     pass2 => 'seekrit123',
 }, 'check_ok pass');
 test_test(name => "check_ok - with invalid input", skip_err => 1);
+isa_ok($results, 'Data::FormValidator::Results', 'Results object returned from check_ok (invalid input)');
+ok(!$results, 'Results from check_ok with invalid input is false');
 
 # Test check_not_ok with valid input
 test_out("not ok 1 - check_not_ok pass");

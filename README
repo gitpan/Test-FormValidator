@@ -2,7 +2,7 @@ NAME
     Test::FormValidator - Test framework for Data::FormValidator profiles
 
 VERSION
-    Version 0.05
+    Version 0.06
 
 SYNOPSIS
         use Test::FormValidator 'no_plan';
@@ -20,7 +20,7 @@ SYNOPSIS
         $tfv->missing_ok(['new_pass2'], "caught missing retyped password");
 
         # and that it detects missing fields
-        $tfv_check(
+        $tfv->check(
             'email'     => 'someone-at-example.com',
             'old_pass'  => 'seekrit',
             'new_pass1' => 'foo',
@@ -256,6 +256,14 @@ METHODS
 
             $tfv->check(\%input, WebApp->_some_profile);
 
+    results
+        Returns the "Data::FormValidator" results object corresponding to
+        the most recent "check", "check_ok", or "check_not_ok". Throws an
+        error if there has not yet been a check.
+
+            $tfv->check_not_ok(\%input, 'some comment');
+            my $results = $tfv->results;
+
   Test Methods
     Methods ending in "_ok" do the standard "Test::" thing: on success, they
     print out 'ok' and return a true value. On failure, they print out 'not
@@ -270,7 +278,8 @@ METHODS
 
             ok($tfv->check(\%input), 'some comment') or $tfv->diag;
 
-        On success, it returns a "Data::FormValidator" results object.
+        It returns a "Data::FormValidator" results object which is
+        overloaded to be true or false depending on the check of the test.
 
     check_not_ok(%input)
         Checks that the given input is not valid:

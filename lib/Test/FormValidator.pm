@@ -25,11 +25,11 @@ Test::FormValidator - Test framework for Data::FormValidator profiles
 
 =head1 VERSION
 
-Version 0.05
+Version 0.06
 
 =cut
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 =head1 SYNOPSIS
 
@@ -48,7 +48,7 @@ our $VERSION = '0.05';
     $tfv->missing_ok(['new_pass2'], "caught missing retyped password");
 
     # and that it detects missing fields
-    $tfv_check(
+    $tfv->check(
         'email'     => 'someone-at-example.com',
         'old_pass'  => 'seekrit',
         'new_pass1' => 'foo',
@@ -351,8 +351,6 @@ If you want to use a new profile for this check only, you can do so:
 
     $tfv->check(\%input, WebApp->_some_profile);
 
-=back
-
 =cut
 
 sub check {
@@ -379,6 +377,28 @@ sub check {
     return $results;
 }
 
+=item results
+
+Returns the C<Data::FormValidator> results object corresponding to the
+most recent C<check>, C<check_ok>, or C<check_not_ok>.  Throws an error
+if there has not yet been a check.
+
+    $tfv->check_not_ok(\%input, 'some comment');
+    my $results = $tfv->results;
+
+=back
+
+=cut
+
+sub results {
+    my $self = shift;
+    if (not exists $self->{'__DFV_RESULTS'} or not defined $self->{'__DFV_RESULTS'}) {
+        croak "Test::FormValidator you need to call check, check_ok or check_not_ok before calling results";
+    }
+    return $self->{'__DFV_RESULTS'};
+}
+
+
 =head2 Test Methods
 
 Methods ending in C<_ok> do the standard C<Test::> thing:  on success,
@@ -397,7 +417,8 @@ This is the equivalent of:
 
     ok($tfv->check(\%input), 'some comment') or $tfv->diag;
 
-On success, it returns a C<Data::FormValidator> results object.
+It returns a C<Data::FormValidator> results object which is overloaded
+to be true or false depending on the check of the test.
 
 =cut
 
@@ -418,8 +439,7 @@ sub check_ok {
 
     $Test->ok($results, $self->_format_description($description));
 
-    return $results if $results;
-    return;
+    return $results;
 }
 
 =item check_not_ok(%input)

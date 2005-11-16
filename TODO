@@ -1,7 +1,6 @@
 
-- add check_ok and check_not_ok
-
-- figure out problem with failing tests, fixing prereqs if necessry
+- check_not_ok should return a $results object
+- doc patch - docs have $tfv_check(...)
 
 
 

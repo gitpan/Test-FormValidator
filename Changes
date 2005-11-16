@@ -1,5 +1,12 @@
 Revision history for Test-FormValidator
 
+0.06    November 16, 2005
+        - $tfv->check_ok now returns a $results object on failure as
+          well as on success
+        - added $tfv->results (useful for examining the results after
+          calling $tfv->check_not_ok)
+        - minor doc fix
+
 0.05    October 20, 2005
         - fix so that $tfv->check() works with a CGI query object
         - added check_ok() and check_not_ok() (suggested by Mark Stosberg)
