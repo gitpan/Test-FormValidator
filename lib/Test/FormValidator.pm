@@ -25,11 +25,11 @@ Test::FormValidator - Test framework for Data::FormValidator profiles
 
 =head1 VERSION
 
-Version 0.06
+Version 0.07
 
 =cut
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 =head1 SYNOPSIS
 
@@ -912,7 +912,7 @@ sub _results_diagnostics {
 
 =head1 AUTHOR
 
-Michael Graham, C<< <mag-perl@occamstoothbrush.com> >>
+Michael Graham, C<< <mgraham@cpan.org> >>
 
 =head1 BUGS
 
@@ -920,6 +920,10 @@ Please report any bugs or feature requests to
 C<bug-test-formvalidator@rt.cpan.org>, or through the web interface at
 L<http://rt.cpan.org>.  I will be notified, and then you'll automatically
 be notified of progress on your bug as I make changes.
+
+=head1 SOURCE
+
+The source code repository for this module can be found at http://github.com/mgraham/Test-FormValidator 
 
 =head1 ACKNOWLEDGEMENTS
 

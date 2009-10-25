@@ -1,7 +1,5 @@
 
-- check_not_ok should return a $results object
-- doc patch - docs have $tfv_check(...)
-
+- diagnostic bug invalid_ok mentions missing_ok
 
 
 
